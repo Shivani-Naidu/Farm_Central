@@ -1,0 +1,294 @@
+﻿@model IEnumerable<ST10084788_PROG7311_POE.Models.Product>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+   
+    <style>
+        .modal-body img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+   
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+    
+    <script>
+        $(document).ready(function () {
+            // Attach click event to images with the 'product-image' class
+            $('.card-image').click(function () {
+                var imageUrl = $(this).attr('src');
+                $('#modalImage').attr('src', imageUrl);
+                $('#imageModal').modal('show');
+            });
+        });
+    </script>
+
+
+    
+    <script>
+        function performSearch() {
+            var searchValue = $('#search').val().toLowerCase();
+            var products = $('.col-md-4');
+
+            products.each(function () {
+                var productName = $(this).find('.card-title').text().toLowerCase();
+                var productDesc = $(this).find('.card-text:eq(0)').text().toLowerCase();
+                var productCategory = $(this).find('.card-text:eq(3)').text().toLowerCase();
+                var farmerName = $(this).find('.card-text:eq(5)').text().toLowerCase();
+                
+                if (productName.includes(searchValue) || productDesc.includes(searchValue) || productCategory.includes(searchValue) || farmerName.includes(searchValue)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }  
+    </script>
+
+  
+    <script>
+        function applyCategoryFilter() {
+            var categoryValue = $('#filterCategory').val().toLowerCase();
+            var products = $('.col-md-4');
+
+            products.each(function () {
+                var productCategory = $(this).find('.card-text').eq(3).text().toLowerCase();
+
+                if (productCategory.includes(categoryValue)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+    </script>
+
+    <!-- flatpicker - used to get calendar view when using date range filter -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
+    <!-- Script for date range filter -->
+    <script>
+        config = {
+            enableTime: true,
+            dateFormat: "Y/m/d H:i:S",
+        }
+
+        flatpickr("input[type=datetime-local]", config);
+
+
+        function validateAndApplyFilter() {
+            var startDate = document.getElementById("startDate").value;
+            var endDate = document.getElementById("endDate").value;
+
+            if (startDate === "") {
+                alert("Please select a start date.");
+                return;
+            }
+
+            if (endDate === "") {
+                alert("Please select an end date.");
+                return;
+            }
+
+            // Both start and end dates are selected, proceed with applying the filter
+            applyDateRangeFilter();
+        }
+
+        function applyDateRangeFilter() {
+
+            // filters based on the DateAdded field of the Product table -- value found in card view (col-md-4)
+            var startDate = new Date($('#startDate').val());
+            var endDate = new Date($('#endDate').val());
+            var products = $('.col-md-4');
+
+            products.each(function () {
+                var productDate = new Date($(this).find('.card-text:eq(4)').text());
+                var meetsDateCriteria = (!startDate || productDate >= startDate) &&
+                    (!endDate || productDate <= endDate);
+
+                if (meetsDateCriteria) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+    </script>
+</head>
+
+
+
+<div class="blank-space" style="height:20px"></div>
+<!-- Farmers can create products -->
+@if (User.Identity.IsAuthenticated && User.IsInRole("Farmer"))
+{
+    <p>
+        <a style="color:black;font-weight: bold;" asp-action="Create">Create New Product</a>
+    </p>
+
+}
+
+<body>
+    <div class="blank-space" style="height:20px"></div>
+
+    @if (Model.Any())
+{
+        <div class="filters-container" >
+
+            <!-- search bar -->
+            <div class="filter-item">
+                <label for="search" style="font-weight: bold; margin-right: 41px; ">Search:</label>
+                <input type="text" id="search" name="search" oninput="performSearch()" style="background: transparent; border: 1px solid black;" placeholder="Search..." />
+            </div>
+
+            <div class="blank-space" style="width:50px;  "></div>
+
+            <!-- Filter by category -->
+           
+
+        </div>
+
+        <div class="blank-space" style="height:20px;  "></div>
+        <div class="filter-item">
+            <label for="filterCategory" style="font-weight: bold;margin-right: 20px;">Category:</label>
+            <select id="filterCategory" name="filterCategory" onchange="applyCategoryFilter()" style="background: transparent; border: 1px solid black;">
+                <option value="">Select Category</option>
+                <option value="vegetable">Vegetable</option>
+                <option value="fruit">Fruit</option>
+                <option value="dairy Products">Dairy Products</option>
+                <option value="meat and poultry">Meat and Poultry</option>
+                <option value="grains and cereals">Grains and Cereals</option>
+                <option value="herbs and spices">Herbs and Spices</option>
+                <option value="honey and bee products">Honey and Bee Products</option>
+                <option value="flowers and plants">Flowers and Plants</option>
+                <option value="eggs and poultry">Eggs and Poultry</option>
+            </select>
+        </div>
+
+        <div class="blank-space" style="height:20px;  "></div>
+        <!-- Date range filter -->
+        <div class="datepicker-container" >
+            <form>
+                <label for="startDate" style="font-weight: bold;">Start Date:</label>
+                <input class="form-control" type="datetime-local" id="startDate" style="background: transparent; border: 1px solid black;" required>
+                 <!-- blank space -->
+                <div class="blank-space" style="height:20px"></div>
+                <label for="endDate" style="font-weight: bold;">End Date:</label>
+                <input class="form-control" type="datetime-local" id="endDate" style="background: transparent; border: 1px solid black;" required>
+                <!-- blank space -->
+                <div class="blank-space" style="height:20px"></div>
+                <button type="button" onclick="validateAndApplyFilter()" class="btn-primary">Apply Date Range</button>
+            </form>
+        </div>
+
+        <!-- blank space -->
+        <div class="blank-space" style="height:60px"></div>
+
+    
+ <!-- Display all products using card view -->
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 col-xs-6 border-primary border-4 mb-3">
+            <div class="card mb-3" style="max-width: 100%; background-color: rgba(255, 255, 255, 0); ">
+                <!-- Card content -->
+                <div class="row g-0" >
+                    <div class="col-md-12" >
+                        <!-- Card header -->
+                        <div class="card-header text-white " style="background-color: #0f0f0f;">
+                            <!-- Card title -->
+                            <h5 class="card-title">
+                                @item.ProductName
+                                        @if (User.Identity.IsAuthenticated && User.IsInRole("Farmer") || User.IsInRole("Admin"))
+                                {
+                                    <a class="text-white float-right" asp-action="Edit" asp-route-id="@item.ProductID"><i class="bi bi-pencil-square"></i></a>
+                                }
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="max-width: 100%; " >
+                        <!-- Card image -->
+                            <div class="card-body text-center">
+                                    <img src="@item.ProductImage" class="mx-auto d-block card-image" alt="@item.ProductName" style=" height:150px; width:180px;  object-fit: cover;">
+                            </div>
+                    </div>
+                    <div class="col-md-6" style="max-width: 100%; " >
+                        <!-- Card body -->
+                        <div class="card-body" style=" background-color: rgba(255, 255, 255, 0); width:230px">
+                            <p class="card-text"><b>Description: </b>@item.ProductDesc</p>
+                            <p class="card-text"><b>Quantity: </b>@item.Quantity</p>
+                            <p class="card-text"><b>Price: </b> <a>R</a>@item.Price.ToString("0.00")</p>
+                            <p class="card-text"><b>Category: </b>@item.ProductCategory</p>
+                            <p class="card-text"><b>Date Added: </b>@item.DateAdded</p>
+
+                                <!-- the farmer can view the farmer username - the farmers which the product belongs to -->
+                                    @if (User.IsInRole("Employee") || User.IsInRole("Admin"))
+                        {
+                            @if (ViewBag.FarmerUsernames.ContainsKey(item.FarmerID))
+                            {
+                                <p class="card-text"><b>Farmer: </b>@ViewBag.FarmerUsernames[item.FarmerID]</p>
+                            }
+                        }
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <!-- Card footer -->
+                        <div class="card-footer" style="background-color: #0f0f0f;  ">
+                            <p class="card-text">
+                                        @if (User.Identity.IsAuthenticated && User.IsInRole("Farmer"))
+                                {
+                                        <!-- Only a farmer can edit or delete their products -->
+                                    <a style="color:lightgreen" asp-action="Edit" asp-route-id="@item.ProductID">Edit</a>  <a> | </a>
+                                    <a style="color:lightgreen" asp-action="Delete" asp-route-id="@item.ProductID">Delete</a>
+                                }
+                                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                        {
+                                            <!-- Only a farmer can edit or delete their products -->
+                                            <a style="color: white" asp-action="Edit" asp-route-id="@item.ProductID">Edit</a>  <a> | </a>
+                                            <a style="color: white" asp-action="Delete" asp-route-id="@item.ProductID">Delete</a>
+                                        }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+       
+
+<!-- Modal dialog -->
+<div id="imageModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="Modal Image">
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+else
+{
+    <p>No products found.</p>
+}
+
+</body>

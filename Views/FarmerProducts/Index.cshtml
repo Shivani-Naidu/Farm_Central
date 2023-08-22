@@ -1,0 +1,296 @@
+﻿@model IEnumerable<Product>
+@{
+    var farmerUsername = ViewContext.RouteData.Values["id"]?.ToString();
+}
+
+<div class="blank-space" style="height:40px"></div>
+<h5 style="font-weight: bold;">Products For - @farmerUsername</h5>
+
+<head>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Styling for modal-->
+    <style>
+        .modal-body img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+
+    
+    <!-- Include jQuery UI CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    
+    
+     <!-- Scripts -->
+    
+     <!-- Modal for viewing expanded image -->
+     <script>
+        $(document).ready(function () {
+            // Attach click event to images with the 'product-image' class
+            $('.card-image').click(function () {
+                var imageUrl = $(this).attr('src');
+                $('#modalImage').attr('src', imageUrl);
+                $('#imageModal').modal('show');
+            });
+        });
+    </script>
+
+    <!-- Date filter -- oldest to newest, newest to oldest -->
+    <script>
+        function applyFilter() {
+            var filter = document.getElementById("filter").value;
+            window.location.href = "@Url.Action("Index", new { id = farmerUsername })" + "?filter=" + filter;
+        }
+    </script>
+
+   
+     <!-- Search bar- search through product name, category, and description -->
+   <script>
+    function performSearch() {
+        var searchValue = $('#search').val().toLowerCase();
+        var products = $('.col-md-4');
+
+        products.each(function () {
+            var productName = $(this).find('.card-title').text().toLowerCase();
+            var productDesc = $(this).find('.card-text:eq(0)').text().toLowerCase();
+            var productCategory = $(this).find('.card-text:eq(3)').text().toLowerCase();
+               
+            if (productName.includes(searchValue) || productDesc.includes(searchValue) || productCategory.includes(searchValue))  {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    }
+    </script>
+
+    <!-- Filter products by category -->
+    <script>
+        function applyCategoryFilter() {
+            var categoryValue = $('#filterCategory').val().toLowerCase();
+            var products = $('.col-md-4');
+
+            products.each(function () {
+                var productCategory = $(this).find('.card-text').eq(3).text().toLowerCase();
+
+                if (productCategory.includes(categoryValue)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+    </script>
+    
+
+</head>
+
+<body> 
+    <div class="blank-space" style="height:20px"></div>
+    
+    @if (Model.Any())
+    {
+        <!-- Filter options -->
+    
+        
+    <div class="filters-container">
+
+            <!-- search bar -->
+        <div class="filter-item">
+            <label for="search" style="font-weight: bold; ">Search:</label>
+                <input type="text" id="search" name="search" oninput="performSearch()" style="background: transparent; border: 1px solid black;" placeholder="Search..." />
+        </div>
+
+
+        
+
+    </div>
+
+        <div class="blank-space" style="height:20px"></div>
+        <!-- Date filter -->
+        <div class="filter-item">
+            <label for="filter" style="font-weight: bold;">Sort By:</label>
+            <select id="filter" name="filter" onchange="applyFilter()" style="background: transparent; border: 1px solid black;">
+                <option value="">Select Filter</option>
+                <option value="newest">Newest to Oldest</option>
+                <option value="oldest">Oldest to Newest</option>
+            </select>
+        </div>
+          <div class="blank-space" style="height:20px"></div>
+
+        <!-- Filter by category -->
+        <div class="filter-item">
+            <label for="filterCategory" style="font-weight: bold;">Search by Category:</label>
+            <select id="filterCategory" name="filterCategory" onchange="applyCategoryFilter()" style="background: transparent; border: 1px solid black;">
+                <option value="">Select Category</option>
+                <option value="vegetable">Vegetable</option>
+                <option value="fruit">Fruit</option>
+                <option value="dairy Products">Dairy Products</option>
+                <option value="meat and poultry">Meat and Poultry</option>
+                <option value="grains and cereals">Grains and Cereals</option>
+                <option value="herbs and spices">Herbs and Spices</option>
+                <option value="honey and bee products">Honey and Bee Products</option>
+                <option value="flowers and plants">Flowers and Plants</option>
+                <option value="eggs and poultry">Eggs and Poultry</option>
+            </select>
+        </div>
+
+     <!-- blank space -->
+    <div class="blank-space" style="height:20px"></div>
+
+
+        <!-- Date range filter -->
+        <div class="datepicker-container">
+            <form>
+                <label for="startDate" style="font-weight: bold;">Start Date:</label>
+                <input class="form-control" type="datetime-local" id="startDate" style="background: transparent; border: 1px solid black;" required>
+                 <div class="blank-space" style="height:20px"></div>
+                <label for="endDate" style="font-weight: bold;">End Date:</label>
+                <input class="form-control" type="datetime-local" id="endDate" style="background: transparent; border: 1px solid black;" required>
+                 <div class="blank-space" style="height:20px"></div>
+                <button type="button" onclick="validateAndApplyFilter()" class="btn-primary">Apply Filter</button>
+            </form>
+        </div>
+
+        <!-- blank space -->
+        <div class="blank-space" style="height:60px"></div>
+
+    // display all products using a card view
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 col-xs-6 border-primary border-4 mb-3">
+                <div class="card mb-3" style="max-width: 100%; background-color: rgba(255, 255, 255, 0); ">
+                    <!-- Card content -->
+                    <div class="row g-0">
+                        <div class="col-md-12">
+                            <!-- Card header -->
+                            <div class="card-header text-white " style="background-color: #0f0f0f;">
+                                <!-- Card title -->
+                                <h5 class="card-title">
+                                    @item.ProductName
+                                    
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="max-width: 100%; ">
+                            <!-- Card image -->
+                            <div class="card-body text-center">
+                                    <img src="@item.ProductImage" class="mx-auto d-block card-image" alt="@item.ProductName" style=" height:150px; width:180px; object-fit: cover;">
+                            </div>
+
+                        </div>
+                        <div class="col-md-6" style="max-width: 100%; ">
+                            <!-- Card body -->
+                            <div class="card-body" style=" background-color: rgba(255, 255, 255, 0); width:230px">
+                                <p class="card-text"><b>Description: </b>@item.ProductDesc</p>
+                                <p class="card-text"><b>Quantity: </b>@item.Quantity</p>
+                                <p class="card-text"><b>Price: </b> <a>R</a>@item.Price.ToString("0.00")</p>
+                                <p class="card-text"><b>Category: </b>@item.ProductCategory</p>
+                                <p class="card-text"><b>Date Added: </b>@item.DateAdded</p>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <!-- Card footer -->
+                            <div class="card-footer" style="background-color: #0f0f0f;  ">
+                                <p class="card-text">
+                                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                        {
+                                            <!-- Only a farmer and admin can edit or delete their products -->
+                                            <a style="color: white" asp-action="Edit" asp-controller="Products" asp-route-id="@item.ProductID">Edit</a>  <a> | </a>
+                                            <a style="color: white" asp-action="Delete" asp-controller="Products" asp-route-id="@item.ProductID">Delete</a>
+                                        }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+     <!-- flatpicker - used to get calendar view when using date range filter -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        
+
+     <!-- Script for date range filter -->
+        <script>
+            config = {
+                enableTime: true,
+                dateFormat: "Y/m/d H:i:S",
+            } 
+            
+            flatpickr("input[type=datetime-local]", config);
+
+
+            function validateAndApplyFilter() {
+                var startDate = document.getElementById("startDate").value;
+                var endDate = document.getElementById("endDate").value;
+
+                if (startDate === "") {
+                    alert("Please select a start date.");
+                    return;
+                }
+
+                if (endDate === "") {
+                    alert("Please select an end date.");
+                    return;
+                }
+
+                // Both start and end dates are selected, proceed with applying the filter
+                applyDateRangeFilter();
+            }
+
+            function applyDateRangeFilter() {
+                
+                // filters based on the DateAdded field of the Product table -- value found in card view (col-md-4)
+                var startDate = new Date($('#startDate').val());
+                var endDate = new Date($('#endDate').val());
+                var products = $('.col-md-4');
+
+                products.each(function () {
+                    var productDate = new Date($(this).find('.card-text:eq(4)').text());
+                    var meetsDateCriteria = (!startDate || productDate >= startDate) &&
+                        (!endDate || productDate <= endDate);
+
+                    if (meetsDateCriteria) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            }
+            </script>
+
+    <!-- Modal dialog for allowing the images to be interactive -->
+    <div id="imageModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <img id="modalImage" src="" alt="Modal Image">
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+else
+{
+    <!-- If the selected farmer has no product, it will display the following -->
+    <p>No products found.</p>
+}
+</body>
+
+
+
+
+
+
+

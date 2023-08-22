@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ST10084788_PROG7311_POE</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    
+    <header>
+        <style>
+            .navbar-logo {
+                width: 55px; /* Adjust the width to your desired size */
+                height: 55px; /* Maintain aspect ratio */
+            }
+
+            
+        </style>
+
+
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0f0f0f;">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" >
+                    <img src="~/css/farm.png" alt="Logo" class="navbar-logo">
+                    
+                    Farm Central</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between" style="color:#ffd89b">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item" style="color:#ffd89b">
+                            <a class="nav-link text-light" style="color:#ffd89b" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        @if (User.IsInRole("Employee") || User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <form class="form-inline" asp-area="Identity" asp-page="/Account/FarmerRegister">
+                                    <button style="color:#ffd89b" type="submit" class="nav-link btn btn-link text-light">Register Farmer</button>
+                                </form>
+                            </li>
+                          
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <form class="form-inline" asp-area="Identity" asp-page="/Account/Register">
+                                    <button style="color:#ffd89b" type="submit" class="nav-link btn btn-link text-light">Register Employee</button>
+                                </form>
+                            </li>
+
+                        }
+
+                        @{
+                            bool isFarmer = User.IsInRole("Farmer");
+                        }
+
+                        @if (!isFarmer)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" style="color:#ffd89b" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
+                            </li>
+                        }
+                       
+                        @if (User.IsInRole("Farmer"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" style="color:#ffd89b" asp-area="" asp-controller="Products" asp-action="Index">My Products</a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Employee") || User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" style="color:#ffd89b" asp-area="" asp-controller="Farmers" asp-action="ViewFarmers">Farmers</a>
+                            </li>
+                        }
+                        
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container" style="color:lightgray">
+            &copy; 2023 - Shivani Naidu - ST10084788 PROG7311 POE 
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

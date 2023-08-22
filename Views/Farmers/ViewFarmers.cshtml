@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<IdentityUser>
+
+
+<!-- Styling for card view -->
+<style>
+    .card {
+        width: 18rem;
+        margin-bottom: 20px;
+        background-color: transparent;
+        border: 3px solid black; /* Add black thick borders */
+        border-radius: 10px; /* Optional: Add rounded corners */
+    }
+
+    .card-body {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .card-footer {
+        background-color: transparent;
+        border: none;
+        text-align: right;
+    }
+</style>
+
+<div class="card-header text-white " style="background-color: rgba(255, 255, 255, 0); color:black">
+                            <!-- Card title -->
+    <h5 class="card-title" style="color:black"> Existing Farmer Accounts </h5>
+</div>
+
+
+ <!-- Display all farmers -->
+<div class="row">
+    @foreach (var farmer in Model)
+    {
+        <div class="col-md-4">
+            <div class="card">
+                 <div class="card-header" style="background-color: black; color: white;">
+                    Farmer Account
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">@farmer.UserName</h5>
+                    <p class="card-text">@farmer.Email</p>
+                </div>
+                <div class="card-footer">
+                    <a style="color:black" asp-area="" asp-controller="FarmerProducts" asp-action="Index" asp-route-id="@farmer.UserName">View Products</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
